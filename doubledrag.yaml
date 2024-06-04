@@ -1,0 +1,218 @@
+---
+- name: Configure SSH
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Ensure PermitRootLogin is set to prohibit-password
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'
+        state: present
+        backup: no
+      notify: Restart SSH service
+
+    - name: Ensure X11Forwarding is enabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?X11Forwarding'
+        line: 'X11Forwarding yes'
+        state: present
+        backup: no
+      notify: Restart SSH service
+
+    - name: Check and ensure SSH service is running
+      ansible.builtin.service:
+        name: sshd
+        state: started  # Ensure the service is running
+        enabled: yes  # Ensure the service is enabled to start at boot
+
+  handlers:
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
+- name: Ensure SSH service is enabled and running
+  hosts: localhost
+  become: yes
+  tasks:
+
+- name: Install yay AUR helper
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Install necessary packages for building yay
+      ansible.builtin.pacman:
+        name:
+          - git
+          - base-devel
+        state: present
+
+    - name: Create yay dir.
+      ansible.builtin.file: 
+        path: "/home/chema/yay"
+        state: directory
+        mode: '0755'
+        owner: chema
+        owner: chema
+
+    - name: Clone yay repository
+      ansible.builtin.git:
+        repo: 'https://aur.archlinux.org/yay.git'
+        dest: '/home/chema/yay'
+        clone: yes
+        update: yes
+
+    - name: Ensure yay directory exists with correct permissions
+      ansible.builtin.file:
+        path: /home/chema/yay
+        state: directory
+        owner: chema
+        group: chema
+        mode: '0755'
+
+    - name: Build and install yay (ensure this runs as a regular user)
+      ansible.builtin.shell:
+        cmd: |
+          export GOFLAGS="-buildvcs=false" &&
+          cd /home/chema/yay &&
+          makepkg -si --noconfirm
+        executable: /bin/bash
+      become: no
+
+- name: Install various packages with pacman
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install packages with pacman
+      ansible.builtin.pacman:
+        name:
+          - ripgrep
+          - xclip
+          - xsel
+          - btop
+          - papis
+          - xdotool
+          - zoxide
+          - exa
+          - starship
+          - syncthing
+          - zathura
+          - zathura-pdf-poppler
+          - zellij
+          - lua
+          - zip
+          - unzip
+          - fuse2
+          - sdl2
+          - tailscale
+          - python
+          - python-pip
+          - python-pipx
+          - linux-headers
+        state: present
+        extra_args: "--noconfirm"
+
+- name: Configure User Environment
+  hosts: localhost
+  connection: local
+  become: yes  # Use only if necessary, see note above
+  tasks:
+    - name: Ensure 'fastfetch' is in .bashrc with surrounding empty lines
+      ansible.builtin.blockinfile:
+        path: "/home/chema/.bashrc"
+        block: |
+          # Ensures an empty line before fastfetch
+          
+          fastfetch
+
+          # Ensures an empty line after fastfetch
+        marker: "# {mark} ANSIBLE MANAGED BLOCK for fastfetch"
+        create: yes
+
+    - name: Ensure "starship is configured" in .bashrc
+      ansible.builtin.blockinfile:
+        path: "/home/chema/.bashrc"
+        block: |
+          # Ensures an empty line before starship
+          
+          eval "$(starship init bash)"
+
+          # Ensures an empty line after starship
+        marker: "# {mark} ANSIBLE MANAGED BLOCK for starship"
+        create: yes
+
+    - name: Ensure Go bin path is added in .bashrc
+      ansible.builtin.blockinfile:
+        path: "/home/chema/.bashrc"
+        block: |
+          # Ensures an empty line before Go bin path
+
+          if [ -d "/home/chema/go/bin" ] ; then
+              PATH="/home/chema/go/bin:$PATH"
+          fi
+
+          # Ensures an empty line after Go bin path
+        marker: "# {mark} ANSIBLE MANAGED BLOCK for Go bin path"
+        create: yes
+
+- name: Configure fastfetch
+  hosts: localhost
+  tasks:
+    - name: Generate fastfetch configuration
+      ansible.builtin.command:
+        cmd: fastfetch --gen-config ~/.config/fastfetch/config.jsonc
+        creates: ~/.config/fastfetch/config.jsonc
+
+- name: Install libgen-cli using Go
+  hosts: localhost
+  become: no
+  tasks:
+    - name: Install libgen-cli
+      ansible.builtin.shell:
+        cmd: go install github.com/ciehanski/libgen-cli@latest
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/usr/local/go/bin:/home/{{ ansible_env.USER }}/go/bin"
+
+- name: Move a file from 'doubledrag' directory to nvim configuration directory
+  hosts: localhost
+  tasks:
+    - name: Ensure nvim configuration directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.config/nvim"
+        state: directory
+        mode: '0755'
+
+    - name: Copy a file to nvim configuration directory
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/init.lua"
+        dest: "{{ ansible_env.HOME }}/.config/nvim/init.lua"
+        force: yes
+        mode: '0644'
+
+- name: Clone GitHub repositories via HTTPS
+  hosts: localhost
+  tasks:
+    - name: Ensure git is present
+      package:
+        name: git
+        state: present
+
+    - name: Clone repository 1
+      git:
+        repo: https://github.com/Frogging-Family/nvidia-all.git
+        dest: ~/nvidia-all
+        version: master
+        update_submodules: yes
+        clone: yes
+
+    - name: Clone repository 2
+      git:
+        repo: https://github.com/zeroxoneafour/polonium.git
+        dest: ~/polonium
+        version: master
+        update_submodules: yes
+        clone: yes
