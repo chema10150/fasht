@@ -202,7 +202,6 @@
         repo: https://github.com/Frogging-Family/nvidia-all.git
         dest: ~/nvidia-all
         version: master
-        update_submodules: yes
         clone: yes
 
     - name: Clone repository 2
@@ -210,5 +209,4 @@
         repo: https://github.com/zeroxoneafour/polonium.git
         dest: ~/polonium
         version: master
-        update_submodules: yes
         clone: yes
