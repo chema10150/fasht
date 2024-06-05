@@ -112,6 +112,9 @@
           - python-pip
           - python-pipx
           - linux-headers
+          - npm
+          - kitty
+          - firefox
         state: present
         extra_args: "--noconfirm"
 
@@ -204,9 +207,8 @@
         version: master
         clone: yes
 
-    - name: Clone repository 2
-      ansible.builtin.git:
-        repo: https://github.com/zeroxoneafour/polonium.git
-        dest: ~/polonium
-        version: master
-        clone: yes
+- name: Install Tree-Sitter CLI globally using npm
+  become: yes
+  commands:
+    - sudo npm install -g tree-sitter-cli
+    - command -v autoconfirm >/dev/null && sudo autoconfirm npm install -g tree-sitter-cli

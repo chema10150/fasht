@@ -1,0 +1,33 @@
+- hosts: localhost
+  tasks:
+    - name: Download polonium script via HTTP
+      get_url:
+        url: "https://github.com/zeroxoneafour/polonium/releases/download/v1.0rc/polonium.kwinscript"
+        dest: /home/chema
+        mode: '0644'
+
+    - name: Install packages with pacman
+      ansible.builtin.pacman:
+        name:
+          - plasma-meta
+        state: present
+        extra_args: "--noconfirm"
+
+    - name: Clone repository via HTTPS using git clone
+      ansible.builtin.git:
+        repo: https://github.com/taj-ny/kwin-effects-forceblur.git
+        dest: ~/force-blur-kde6
+        version: master
+        clone: yes
+
+    - name: Alias for KDE command from terminal
+      ansible.builtin.blockinfile:
+        path: "/home/chema/.bashrc"
+        block: |
+          # Ensures an empty line before alias
+
+          alias plasma='/usr/lib/plasma-dbus-run-session-if-needed /usr/bin/startplasma-wayland'
+
+          # Ensures an empty line after alias
+        marker: "# {mark} ANSIBLE MANAGED BLOCK for fastfetch"
+        create: yes
