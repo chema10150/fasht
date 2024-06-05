@@ -94,7 +94,6 @@
           - xclip
           - xsel
           - btop
-          - papis
           - xdotool
           - zoxide
           - exa
@@ -195,14 +194,11 @@
 
 - name: Clone GitHub repositories via HTTPS
   hosts: localhost
-  tasks:
-    - name: Ensure git is present
-      package:
-        name: git
-        state: present
+  gather_facts: false
 
+  tasks:
     - name: Clone repository 1
-      git:
+      ansible.builtin.git:
         repo: https://github.com/Frogging-Family/nvidia-all.git
         dest: ~/nvidia-all
         version: master
@@ -210,7 +206,7 @@
         clone: yes
 
     - name: Clone repository 2
-      git:
+      ansible.builtin.git:
         repo: https://github.com/zeroxoneafour/polonium.git
         dest: ~/polonium
         version: master
