@@ -1166,15 +1166,15 @@ require("lazy").setup({
 
 	-- Key mappings for calendar functions using vim.keymap.set
 	vim.keymap.set("n", "<leader>oc", function()
-		require("neorg.modules.core.ui.calendar").public.open({})
+		require("neorg.modules.core.ui.calendar.module").public.open({})
 	end, { desc = "Open Calendar Standalone" }),
 
 	vim.keymap.set("n", "<leader>sc", function()
-		require("neorg.modules.core.ui.calendar").public.select_date({})
+		require("neorg.modules.core.ui.calendar.module").public.select_date({})
 	end, { desc = "Select Date in Calendar" }),
 
 	vim.keymap.set("n", "<leader>rc", function()
-		require("neorg.modules.core.ui.calendar").public.select_date_range({})
+		require("neorg.modules.core.ui.calendar.module").public.select_date_range({})
 	end, { desc = "Select Date Range in Calendar" }),
 
 	-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the

@@ -10,6 +10,8 @@
       ansible.builtin.pacman:
         name:
           - plasma-meta
+          - kitty
+          - firefox
         state: present
         extra_args: "--noconfirm"
 
@@ -31,3 +33,10 @@
           # Ensures an empty line after alias
         marker: "# {mark} ANSIBLE MANAGED BLOCK for fastfetch"
         create: yes
+
+    - name: Copy a file to kitty configuration directory
+      ansible.builtin.copy:
+        src: "/usr/share/doc/kitty/kitty.conf"
+        dest: "{{ ansible_env.HOME }}/.config/kitty/kitty.conf"
+        force: yes
+        mode: '0644'

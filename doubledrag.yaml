@@ -113,8 +113,6 @@
           - python-pipx
           - linux-headers
           - npm
-          - kitty
-          - firefox
         state: present
         extra_args: "--noconfirm"
 
